@@ -1,0 +1,48 @@
+const newman = require('newman');
+ var final = [];
+ fs = require('fs');
+ var obj = {};
+newman.run({
+    collection: require('D:/projects/iot/postman/postman_collection_del.json'),
+    environment: require('D:/projects/iot/postman/postman_environment.json'),
+delayRequest: 300,
+ reporters: ['htmlextra','json','cli'],
+    iterationCount: 1,
+    reporter: {
+        htmlextra: {
+            logs: true,
+            browserTitle: "Newman report",
+            title: "Newman Report",
+             displayProgressBar: true
+        }
+}
+}).on('start', function (err, args) { // on start of run, log to console
+    console.log('running a collection...');
+}).on('request',function  (error, args)  {
+if (error) {
+ console.error(error);
+}
+else {
+   
+    console.log(this.summary.run.stats.requests)
+    const resultData = args.response.stream;
+    
+    const str = resultData.toString(); 
+    final.push(JSON.parse(str).join("\r\n")); 
+ }
+ 
+}).on('done', function (err, summary) {
+    if (err || summary.error) {
+        console.error('collection run encountered an error.');
+    }
+    else {
+        console.log(summary.collection.items.members[0].items.members[0].items.members[0].name);
+        console.log('collection run completed.');
+      fs.writeFile('D:/projects/iot/postman/responses/response_${uuidv1()}.txt', JSON.stringify(final) , (results) => {
+  
+ console.log('file was writen');
+ })
+    }
+     
+      
+});
